@@ -18,6 +18,8 @@
 │       ├── map_logic.js
 │       └── style.css
 ├── auto_project_manager.py
+├── bin
+├── buildozer.spec
 ├── config
 │   └── project_meta.json
 ├── core

@@ -2,7 +2,7 @@ name: Android APK Build
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch: # 允許手動點擊按鈕執行
+  workflow_dispatch:
 
 jobs:
   build:
@@ -10,10 +10,10 @@ jobs:
 
     steps:
       - name: 檢出程式碼 (Checkout code)
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 設定 Python 環境
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -29,12 +29,10 @@ jobs:
 
       - name: 執行 Buildozer 打包 (這會花約 15-20 分鐘)
         run: |
-          # 這裡會自動讀取您專案中的 buildozer.spec
-          # 使用 --verbose 讓雲端 log 完整顯示，方便除錯
           yes | buildozer android debug
 
       - name: 儲存 APK 結果 (Upload Artifact)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: GIS-Audit-APK
           path: bin/*.apk
