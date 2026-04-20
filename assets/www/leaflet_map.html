@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GIS Audit Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+    
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="map"></div>
+
+    <div id="info-card" class="info-card">
+        <h3 id="ic-title">📍 停頓點偵測</h3>
+        <p><strong>抵達時間:</strong> <span id="ic-time">--</span></p>
+        <p><strong>停留長度:</strong> <span id="ic-duration">--</span> 分鐘</p>
+        <p><strong>周邊廠家:</strong> <span id="ic-poi">--</span></p>
+        <button id="btn-streetview" onclick="openStreetView()">查看 Google 街景</button>
+    </div>
+
+    <script src="map_logic.js"></script>
+</body>
+</html>

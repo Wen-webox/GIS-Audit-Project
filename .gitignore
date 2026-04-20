@@ -1,0 +1,12 @@
+
+.venv/
+logs/
+.git/
+.buildozer/
+__pycache__/
+build/
+dist/
+.time_machine/
+*.pyc
+.env
+*.sqlite3
