@@ -17,18 +17,23 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 安裝系統依賴 (System Dependencies)
+      - name: 安裝系統編譯依賴 (終極完整版)
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses-dev cmake libffi-dev libssl-dev
+          # 補齊所有編譯必需的 C 語言工具鏈與 Kivy 圖形庫
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf automake libtool pkg-config \
+          zlib1g-dev libncurses-dev cmake libffi-dev libssl-dev \
+          libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libjpeg-dev libpng-dev
 
-      - name: 安裝 Buildozer 與必要套件
+      - name: 安裝 Buildozer 與鎖定穩定版 Cython
         run: |
-          pip install --upgrade buildozer cython virtualenv
+          # 鎖定 Cython < 3.0 是為了確保與目前的打包工具鏈相容
+          pip install --upgrade buildozer "cython<3.0" virtualenv
           export PATH=$PATH:~/.local/bin
 
-      - name: 執行 Buildozer 打包 (這會花約 15-20 分鐘)
+      - name: 執行 Buildozer 打包 (預計耗時 5-10 分鐘)
         run: |
+          # yes | 指令會自動回答所有 SDK 授權許可
           yes | buildozer android debug
 
       - name: 儲存 APK 結果 (Upload Artifact)
