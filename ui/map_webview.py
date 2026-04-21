@@ -13,7 +13,6 @@ class MapWebView(Widget):
         self.html_path = os.path.join(os.getcwd(), 'assets', 'www', 'leaflet_map.html')
         self.webview = None
         
-        # 繪製 Kivy 背景 (除錯用底色)
         with self.canvas.before:
             Color(0.2, 0.2, 0.2, 1)
             self.rect = Rectangle(size=self.size, pos=self.pos)
@@ -32,7 +31,6 @@ class MapWebView(Widget):
             from jnius import autoclass
             from android.runnable import run_on_ui_thread # type: ignore
             
-            # 【關鍵修復】：在 Python 執行緒先取得尺寸數值
             kivy_x = int(self.x)
             kivy_y = int(self.y)
             kivy_w = int(self.width)
@@ -41,22 +39,26 @@ class MapWebView(Widget):
             @run_on_ui_thread
             def update_params():
                 try:
-                    # 【關鍵修復】：所有牽涉到 Android 原生 UI 的操作，必須在 UI Thread 內執行
                     activity = autoclass('org.kivy.android.PythonActivity').mActivity
                     window = activity.getWindow().getDecorView()
                     win_height = window.getHeight()
                     
-                    # 座標系翻轉
                     android_y = int(win_height - (kivy_y + kivy_h))
                     
-                    LayoutParams = autoclass('android.widget.FrameLayout$LayoutParams')
-                    params = LayoutParams(kivy_w, kivy_h)
-                    params.leftMargin = kivy_x
-                    params.topMargin = android_y
+                    # 【根本解法 1】：放棄 LayoutParams 邊距，改用系統底層絕對座標
+                    # 這完全避開了 Kivy 與 Android 佈局類別不合導致的 ClassCastException 秒退
+                    self.webview.setX(float(kivy_x))
+                    self.webview.setY(float(android_y))
                     
-                    self.webview.setLayoutParams(params)
+                    # 僅單純更新寬高
+                    params = self.webview.getLayoutParams()
+                    if params:
+                        params.width = kivy_w
+                        params.height = kivy_h
+                        self.webview.setLayoutParams(params)
+                        
                 except Exception as e:
-                    print(f"WebView 尺寸更新失敗: {e}")
+                    print(f"Geometry Update Error: {e}")
             
             update_params()
 
@@ -78,21 +80,27 @@ class MapWebView(Widget):
                 activity = autoclass('org.kivy.android.PythonActivity').mActivity
                 
                 self.webview = WebView(activity)
-                self.webview.getSettings().setJavaScriptEnabled(True)
-                self.webview.getSettings().setDomStorageEnabled(True)
-                self.webview.getSettings().setAllowFileAccess(True)
+                settings = self.webview.getSettings()
+                settings.setJavaScriptEnabled(True)
+                settings.setDomStorageEnabled(True)
+                
+                # 【根本解法 2】：暴力解鎖 Android 11+ 的 WebView 跨網域與本地讀取限制
+                settings.setAllowFileAccess(True)
+                settings.setAllowFileAccessFromFileURLs(True)
+                settings.setAllowUniversalAccessFromFileURLs(True)
+                
                 self.webview.setWebViewClient(WebViewClient())
+                
+                # 用最基礎的 0,0 大小初始化，等 Kivy 計算好位置後再放大，避免畫面閃爍崩潰
+                LayoutParams = autoclass('android.view.ViewGroup$LayoutParams')
+                activity.addContentView(self.webview, LayoutParams(0, 0))
                 
                 file_url = f"file://{self.html_path}"
                 self.webview.loadUrl(file_url)
                 
-                # 【關鍵修復】：使用更安全的 addContentView，避免覆蓋 Kivy 主畫面
-                LayoutParams = autoclass('android.view.ViewGroup$LayoutParams')
-                activity.addContentView(self.webview, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
-                
                 self._update_native_view_geometry()
             except Exception as e:
-                print(f"WebView 建立失敗: {e}")
+                print(f"WebView Creation Error: {e}")
 
         create_webview()
 
