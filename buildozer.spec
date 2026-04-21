@@ -12,14 +12,15 @@ package.domain = org.epa.audit
 # (str) Source code where the main.py live
 source.dir = .
 
-# (list) 包含所有地圖資源與副檔名
+# (list) 包含所有地圖資源與副檔名 (注意包含了 ttf 字型檔與網頁前端資源)
 source.include_exts = py,png,jpg,kv,atlas,ttf,html,js,css,json,kml
 
 # (str) Application versioning
 version = 1.0
 
-# (list) 🌟 輕量化核心套件 (已徹底移除 pandas, numpy, lxml, fastkml 這些會導致編譯失敗的重型套件)
-requirements = python3,kivy,kivymd,requests,pyjnius
+# (list) 🌟 終極輕量化 + UI 必備套件 
+# (已加入 pillow 與 materialyoucolor，確保 KivyMD 的按鈕與導航列能正常顯示)
+requirements = python3,kivy,kivymd,pillow,materialyoucolor,requests,pyjnius
 
 # (list) 平板應用程式，固定為橫向
 orientation = landscape
