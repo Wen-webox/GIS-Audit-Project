@@ -18,8 +18,8 @@ source.include_exts = py,png,jpg,kv,atlas,ttf,html,js,css,json,kml
 # (str) Application versioning
 version = 1.0
 
-# (list) 補齊所有依賴套件 (注意：numpy 必須排在 pandas 前面，這是打包成功的關鍵)
-requirements = python3,kivy,kivymd,numpy,pandas,lxml,fastkml,requests,pyjnius
+# (list) 🌟 輕量化核心套件 (已徹底移除 pandas, numpy, lxml, fastkml 這些會導致編譯失敗的重型套件)
+requirements = python3,kivy,kivymd,requests,pyjnius
 
 # (list) 平板應用程式，固定為橫向
 orientation = landscape
