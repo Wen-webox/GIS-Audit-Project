@@ -6,7 +6,8 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # 【根本解法】強制使用穩定的 Ubuntu 22.04，避開最新版系統的套件衝突
+    runs-on: ubuntu-22.04
 
     steps:
       - name: 檢出程式碼 (Checkout code)
@@ -17,24 +18,24 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 安裝系統編譯依賴 (包含 libtool-bin 與 m4)
+      - name: 安裝系統編譯依賴 (穩定版標準庫)
         run: |
           sudo apt update
-          # 補齊所有編譯必需的 C 語言工具鏈與圖形庫
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf automake libtool libtool-bin m4 pkg-config \
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf automake libtool pkg-config \
           zlib1g-dev libncurses-dev cmake libffi-dev libssl-dev \
           libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libjpeg-dev libpng-dev
 
-      - name: 安裝 Buildozer 與 Cython
+      - name: 安裝 Buildozer 與鎖定穩定版 Cython
         run: |
           pip install --upgrade buildozer "cython<3.0" virtualenv
           export PATH=$PATH:~/.local/bin
 
-      - name: 執行 Buildozer 打包
+      - name: 執行 Buildozer 打包 (預計耗時 5-10 分鐘)
         run: |
+          # yes | 指令會自動回答所有 SDK 授權許可
           yes | buildozer android debug
 
-      - name: 儲存 APK 結果
+      - name: 儲存 APK 結果 (Upload Artifact)
         uses: actions/upload-artifact@v4
         with:
           name: GIS-Audit-APK
